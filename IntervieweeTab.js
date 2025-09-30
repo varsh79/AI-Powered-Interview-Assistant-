@@ -31,7 +31,6 @@ function IntervieweeTab() {
   const [isInitialized, setIsInitialized] = useState(false);
   const timerRef = useRef(null);
 
-  // ---------- Validation ----------
   const validateEmail = (s) =>
     typeof s === 'string' && s.includes('@') && s.indexOf('@') > 0 && s.indexOf('@') < s.length - 1;
 
@@ -44,7 +43,6 @@ function IntervieweeTab() {
     return /^\d{10}$/.test(national);
   };
 
-  // ---------- AI call with timeout + retries ----------
   const aiCall = async (prompt, { timeoutMs = 12000, retries = 2 } = {}) => {
     let lastErr;
     for (let attempt = 0; attempt <= retries; attempt++) {
@@ -62,7 +60,6 @@ function IntervieweeTab() {
     throw lastErr || new Error('AI failed');
   };
 
-  // ---------- Skill Templates (difficulty-stratified) ----------
   const SKILL_TEMPLATES = {
     javascript: {
       easy: [
@@ -275,7 +272,6 @@ function IntervieweeTab() {
     },
   };
 
-  // ---------- Seeding & Helpers for deterministic randomness ----------
   const hashString = (s) => {
     // djb2
     let h = 5381;
@@ -333,13 +329,11 @@ function IntervieweeTab() {
     return skills;
   };
 
-  // Build 6 questions aligned to difficulties using templates + seeded randomness
   const buildSkillBasedQuestions = (txt, seed) => {
     const skills = detectSkills(txt);
     const rng = mulberry32(seed);
     const out = [];
 
-    // For each required difficulty, pick a skill and then a question from that skill bucket
     for (const diff of difficulties) {
       // Prefer a random skill from the detected list which has templates for this diff
       const skillsWithDiff = skills.filter((s) => SKILL_TEMPLATES[s] && SKILL_TEMPLATES[s][diff] && SKILL_TEMPLATES[s][diff].length);
@@ -369,7 +363,6 @@ function IntervieweeTab() {
       out.push(q);
     }
 
-    // De-duplicate while keeping order; if we lost some due to dupes, fill from any pool
     const seen = new Set();
     const unique = out.filter((q) => {
       const k = q.toLowerCase().trim();
@@ -391,11 +384,9 @@ function IntervieweeTab() {
       }
     }
 
-    // Shuffle lightly so not always [2 easy, 2 medium, 2 hard] fixed order
     return shuffleInPlace(unique.slice(0, 6), rng);
   };
 
-  // ---------- Restore in-progress interview ----------
   useEffect(() => {
     if (current && !isInitialized && !current.finished && current.step === 'interview') {
       Modal.info({
@@ -879,3 +870,4 @@ function IntervieweeTab() {
 }
 
 export default IntervieweeTab;
+
